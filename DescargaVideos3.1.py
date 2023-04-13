@@ -7,6 +7,7 @@ from TikTokApi import TikTokApi
 from moviepy.editor import *
 import facebook
 import requests
+import re 
 
 # # Pedir al usuario que ingrese la URL del video
 # url = input("Ingrese la URL del video que desea descargar: ")
@@ -20,7 +21,7 @@ import requests
 
 # Enviar el video al celular a través de la red WiFi
 
-filename = "video.mp4"
+
 # ip_address = input("192.168.0.171")
 
 # https://www.youtube.com/watch?v=o3Iup-oisQA
@@ -30,6 +31,7 @@ def main():
     descargar(url)
 
 def descargar(url) -> None:
+    filename = "video.mp4"
     if "youtube" in url:
 
         # Crear objeto YouTube
@@ -71,7 +73,7 @@ def descargar(url) -> None:
              f.write(response.content)
              nombre = stream.default_filename
 
-    if "tiktok" in url:
+    if "facebook" in url:
         descarga_facebook(url)
 def formato(nombre):
     
@@ -100,19 +102,35 @@ def transferir(palabra):
     main()
 
 def descarga_facebook(video_url):
-    # video_url = 'https://www.facebook.com/USER_NAME/videos/VIDEO_ID/'
+    video_id = input("1 Guardar, 2 quitar audio")
+    video_url = 'https://www.facebook.com/watch/?v=123456789'
+
+    # Expresión regular para buscar el ID del video en la URL
+    pattern = r'\/videos\/(\d+)'
+
+    # Buscar el ID del video en la URL utilizando la expresión regular
+    match = re.search(pattern, video_url)
+
+   
+    # El ID del video se encuentra en el primer grupo de la expresión regular
+    # video_id = match.group(1)
+    print(f'ID del video: {video_id}')
+    access_token ='EAAIrnFZCremoBAMy8AWzV2NLqgxl0KuY74HZCJhcnq8B18oy35J8voZAg7Wjqilh4P9BSlbMVYgDyWZC34PtZBJgPZBaagGVZAqjZA2IAlyQZAAZCqazWR70G5DSZC7ZCOMyrLR6NFc3FKbZAcRoiwIUfLyURg7Vc1SEGVEPTWUzcheohWVtmqf0s1K5DpDHaTVdOt44j8fqrGDiDi092QdAl32TGap0wJZAunz8gZD'
+    # ID del video de Facebook que quieres descargar
+    
+    # Crear un objeto GraphAPI utilizando el token de acceso
+    graph = facebook.GraphAPI(access_token)
+    # Realizar una solicitud para obtener la URL del video
+    video = graph.get_object(id=video_id, fields='source')
+    # Descargar el video utilizando la URL obtenida
+    video_url = video['source']
+    response = requests.get(video_url)
+    # Guardar el video en un archivo local
+    with open('videoFacebook.mp4', 'wb') as f:
+        f.write(response.content)
+
 
     # Realizar una solicitud HTTP a la URL del video y obtener la respuesta
-    response = requests.get(video_url)
-
-    # Obtener el enlace del video desde la respuesta
-    video_link_start = response.text.find('hd_src:"') + len('hd_src:"')
-    video_link_end = response.text.find('",', video_link_start)
-    video_link = response.text[video_link_start:video_link_end]
-
-    # Descargar el video y guardarlo en un archivo local
-    response = requests.get(video_link)
-    with open('videof.mp4', 'wb') as f:
-        f.write(response.content)
+    
 
 main()
